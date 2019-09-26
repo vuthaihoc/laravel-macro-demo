@@ -14,8 +14,8 @@ class ImageUploadController extends Controller
      * ImageUploadController constructor.
      */
     public function __construct() {
-        $this->original_image = storage_path('original_image.jpg');
-        $this->thumbnail_image = storage_path('thumbnail_image.jpg');
+        $this->original_image = public_path('original_image.jpg');
+        $this->thumbnail_image = public_path('thumbnail_image.jpg');
     }
     
     
@@ -25,12 +25,18 @@ class ImageUploadController extends Controller
         if($request->isMethod( 'post')){
             $this->processRequest($request);
         }
-        $original_image = file_exists( $this->original_image ) ? $this->original_image : false;
-        $thumbnail_image = file_exists( $this->thumbnail_image ) ? $this->thumbnail_image : false;
+        $original_image = file_exists( $this->original_image ) ? url(basename( $this->original_image )) : false;
+        $thumbnail_image = file_exists( $this->thumbnail_image ) ? url(basename( $this->thumbnail_image )) : false;
         return view('image_upload', compact( 'original_image', 'thumbnail_image'));
     }
     
     protected function processRequest(Request $request){
-        // do something here
+        try{
+            $file = $request->file('image');
+            $file->saveTo($this->original_image, ['height' => 800, 'width' => 800, 'aspectRatio' => true]);
+            $file->saveTo($this->thumbnail_image, ['height' => 200, 'width' => 200, 'aspectRatio' => true]);
+        }catch (\Exception $ex){
+        
+        }
     }
 }
